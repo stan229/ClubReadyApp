@@ -34,7 +34,7 @@ moment.locale('en', {
 class ClubReadyApp extends React.Component {
     constructor(props) {
         super(props);
-        this.state = this.getState();
+        this.state = this.getInitialState();
         this.bindMethods();
     }
     
@@ -48,7 +48,7 @@ class ClubReadyApp extends React.Component {
         }
     }
 
-    getState() {
+    getInitialState() {
         var getSectionData = (dataBlob, sectionID) => {
             return dataBlob[sectionID];
         }
