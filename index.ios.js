@@ -1,7 +1,3 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- */
 'use strict';
 
 var React = require('react-native');
@@ -14,14 +10,13 @@ var {
     Text,
     View,
     ListView,
-    TouchableHighlight,
     TouchableOpacity,
     AlertIOS,
     ActivityIndicatorIOS
 } = React;
 
 
-const API_URL = 'https://agile-reef-2525.herokuapp.com/schedule';
+var API_URL = 'https://agile-reef-2525.herokuapp.com/schedule';
 
 moment.locale('en', {
     calendar : {
@@ -39,10 +34,21 @@ moment.locale('en', {
 class ClubReadyApp extends React.Component {
     constructor(props) {
         super(props);
-        this.state = this.getInitialState();
+        this.state = this.getState();
+        this.bindMethods();
+    }
+    
+    bindMethods() {
+        if (! this.bindableMethods) {
+            return;
+        }   
+
+        for (var methodName in this.bindableMethods) {
+            this[methodName] = this.bindableMethods[methodName].bind(this);
+        }
     }
 
-    getInitialState() {
+    getState() {
         var getSectionData = (dataBlob, sectionID) => {
             return dataBlob[sectionID];
         }
@@ -142,7 +148,7 @@ class ClubReadyApp extends React.Component {
                 <ListView
                     dataSource = {this.state.dataSource}
                     style      = {styles.listview}
-                    renderRow  = {this.renderRow.bind(this)}
+                    renderRow  = {this.renderRow}
                     renderSectionHeader = {this.renderSectionHeader}
                 />
             </View>
@@ -150,36 +156,26 @@ class ClubReadyApp extends React.Component {
     }
 
   
-    onPressRow(rowData, sectionID) {
-        var buttons = [
-            {
-                text : 'Cancel'
-            },
-            {
-                text    : 'OK',
-                onPress : this.createCalendarEvent.bind(this, rowData, sectionID)
-            }
-        ]
-        AlertIOS.alert('Add Event To Calendar', null, buttons);
-    }
+    // onPressRow(rowData, sectionID) {
+    //     var buttons = [
+    //         {
+    //             text : 'Cancel'
+    //         },
+    //         {
+    //             text    : 'OK',
+    //             onPress : this.createCalendarEvent.bind(this, rowData, sectionID)
+    //         }
+    //     ]
+    //     AlertIOS.alert('Add Event To Calendar', null, buttons);
+    // }
 
     createCalendarEvent(rowData, sectionID) {
+        debugger;
         var dateString = moment(sectionID).format('L') + ' ' + rowData.time,
             classDate = moment(dateString, 'MM/DD/YYYY h:mm A');
 
 
         CalendarManager.addEvent('CKO Class', classDate.toISOString(), '2615 E 17th St, Brooklyn, NY 11235', rowData.instructor);
-    }
-
-    renderRow(rowData, sectionID, rowID) {
-        return (
-            <TouchableOpacity onPress={this.onPressRow.bind(this, rowData, sectionID)}>
-                <View style={styles.rowStyle}>
-                    <Text style={styles.rowText}>{rowData.time}</Text>        
-                    <Text style={styles.subText}>{rowData.instructor}</Text>        
-                </View>
-            </TouchableOpacity>
-        );
     }
 
     renderSectionHeader(sectionData, sectionID) {
@@ -196,19 +192,38 @@ class ClubReadyApp extends React.Component {
         </View>
     }
 };
-// ClubReadyApp.prototype.state = {
-//   loaded : false,
-//   dataSource : new ListView.DataSource({
-//     rowHasChanged : (row1, row2) => row1 !== row2
-//   })
-// };
+
+Object.assign(ClubReadyApp.prototype, {
+    bindableMethods : {
+        renderRow : function (rowData, sectionID, rowID) {
+            return (
+                <TouchableOpacity onPress={() => this.onPressRow(rowData, sectionID)}>
+                    <View style={styles.rowStyle}>
+                        <Text style={styles.rowText}>{rowData.time}</Text>        
+                        <Text style={styles.subText}>{rowData.instructor}</Text>        
+                    </View>
+                </TouchableOpacity>
+            );
+        },
+        onPressRow : function (rowData, sectionID) {
+            var buttons = [
+                {
+                    text : 'Cancel'
+                },
+                {
+                    text    : 'OK',
+                    onPress : () => this.createCalendarEvent(rowData, sectionID)
+                }
+            ]
+            AlertIOS.alert('Add Event To Calendar', null, buttons);
+        }
+
+    }
+});
 
 var styles = StyleSheet.create({
     container: {
         flex: 1
-    },
-    listview: {
-        // marginTop: 20
     },
     activityIndicator: {
         alignItems: 'center',
@@ -220,13 +235,12 @@ var styles = StyleSheet.create({
         alignItems: 'center',
         backgroundColor: '#3F51B5',
         flexDirection: 'column',
-        paddingTop: 25,
+        paddingTop: 25
     },
     headerText: {
         fontWeight: 'bold',
         fontSize: 20,
         color: 'white'
-
     },
     text: {
         color: 'white',
@@ -255,8 +269,10 @@ var styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'flex-start',
         padding: 6,
-        backgroundColor: '#2196F3',
-    },
+        backgroundColor: '#2196F3'
+    }
 });
 
 AppRegistry.registerComponent('ClubReadyApp', () => ClubReadyApp);
+
+module.exports = ClubReadyApp;
