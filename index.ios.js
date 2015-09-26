@@ -195,15 +195,18 @@ class ClubReadyApp extends React.Component {
 
     renderLoadingView() {
         return (
-            <View style={styles.header}>
-                <Text style={styles.headerText}>CKO Sheepshead Bay Schedule</Text>
-                <View style={styles.container}>
+            <View style={styles.container}>
+                <View style={styles.header}>
+                    <Text style={styles.headerText}>CKO Sheepshead Bay Schedule</Text>
+                </View>
+                
+                <View style={styles.acitvityContainer}>
                     <ActivityIndicatorIOS
                         animating={!this.state.loaded}
-                        style={[styles.activityIndicator, {height: 80}]}
                         size="large"
-                    />
+                    />                
                 </View>
+                
             </View>
         );
     }
@@ -225,20 +228,6 @@ class ClubReadyApp extends React.Component {
             </View>
         );
     }
-
-  
-    // onPressRow(rowData, sectionID) {
-    //     var buttons = [
-    //         {
-    //             text : 'Cancel'
-    //         },
-    //         {
-    //             text    : 'OK',
-    //             onPress : this.createCalendarEvent.bind(this, rowData, sectionID)
-    //         }
-    //     ]
-    //     AlertIOS.alert('Add Event To Calendar', null, buttons);
-    // }
 
     createCalendarEvent(rowData, sectionID) {
         debugger;
@@ -290,9 +279,12 @@ var styles = StyleSheet.create({
     container: {
         flex: 1
     },
-    activityIndicator: {
-        alignItems: 'center',
-        justifyContent: 'center',
+    acitvityContainer : {
+        flex : 1,
+        marginTop : 10,
+        flexDirection : 'row',
+        alignItems: 'flex-start',
+        justifyContent: 'center',        
     },
     header: {
         height: 60,
