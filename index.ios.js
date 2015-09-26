@@ -1,8 +1,10 @@
 'use strict';
 
-var React = require('react-native');
-var moment = require('moment');
-var CalendarManager = require('NativeModules').CalendarManager;
+var React = require('react-native'),
+    moment = require('moment'),
+    qs = require('query-string'),
+    cheerio = require('cheerio'),
+    CalendarManager = require('NativeModules').CalendarManager;
 
 var {
     AppRegistry,
@@ -16,7 +18,7 @@ var {
 } = React;
 
 
-var API_URL = 'https://agile-reef-2525.herokuapp.com/schedule';
+var API_URL = 'https://www.clubready.com/common/widgets/ClassPublish/ajax_updateclassweek.asp';
 
 moment.locale('en', {
     calendar : {
@@ -72,8 +74,32 @@ class ClubReadyApp extends React.Component {
     }
 
     fetchData() {
-        fetch(API_URL).then((response) => response.json()).then((responseData) => {
-            var length     = responseData.length,
+        var postData = qs.stringify({
+                s        : 2695,
+                dy       : '',
+                cid      : 0,
+                pb       : 1,
+                cb       : 1,
+                cp       : 1,
+                ppbt     : '',
+                cbt      : '',
+                inf      : 0,
+                sc       : 0,
+                r        : Math.floor(Math.random() * (2282851 - 228285)) + 22825,
+                dispClub : 'undefined'
+            });
+        
+
+
+        fetch(API_URL, {
+            method : 'post',
+            headers : {
+                'Content-Type'   : 'application/x-www-form-urlencoded',
+                'Content-Length' : postData.length
+            },
+            body : postData
+        }).then((response) => response.text()).then((responseData) => this.parseContent(responseData)).then((jsonData) => {
+            var length     = jsonData.length,
                 dataBlob   = {},
                 sectionIDs = [],
                 rowIDs     = [],
@@ -88,7 +114,7 @@ class ClubReadyApp extends React.Component {
 
 
             for (i = 0; i < length; i++) {
-                day = responseData[i];
+                day = jsonData[i];
                 date = day.date;
                 sectionIDs.push(date);
                 
@@ -112,7 +138,50 @@ class ClubReadyApp extends React.Component {
                 dataSource : this.state.dataSource.cloneWithRowsAndSections(dataBlob, sectionIDs, rowIDs),
                 loaded     : true
             });
+            
         }).done();
+    }
+    parseContent(content) {
+        var $ = cheerio.load(content),
+            tableRows = $('>tr','#classesTable'),
+            length = tableRows.length,
+            schedule = [],
+            classDate,
+            scheduleDay,
+            tableRow,
+            rowCells,
+            i;
+
+
+        for(i = 0; i < length; i++) {
+            tableRow = tableRows[i];
+
+            if(!Object.keys(tableRow.attribs).length) {
+                if(scheduleDay) {
+                    schedule.push(scheduleDay);
+                }
+
+                classDate = $(tableRow).find('.accentText')[1].children[0].data;
+
+                scheduleDay = {
+                    date     : moment(classDate, 'MMM DD, YYYY').toISOString(),
+                    schedule : []
+                };
+
+            }
+            if(tableRow.attribs.class) {
+                rowCells = $(tableRow).children('td');
+                scheduleDay.schedule.push({
+                    time       : rowCells[0].children[0].data.toUpperCase(),
+                    instructor : $(rowCells[2]).text(),
+                    duration   : $(rowCells[4]).text().split('\n')[0]
+                })
+            }
+        }
+
+        schedule.push(scheduleDay);
+
+        return schedule;
     }
 
 
@@ -150,6 +219,8 @@ class ClubReadyApp extends React.Component {
                     style      = {styles.listview}
                     renderRow  = {this.renderRow}
                     renderSectionHeader = {this.renderSectionHeader}
+                    contentInset={{top:0}}
+                    automaticallyAdjustContentInsets={false}
                 />
             </View>
         );
@@ -184,12 +255,6 @@ class ClubReadyApp extends React.Component {
                 <Text style={styles.text}>{sectionData}</Text>
             </View>
         ); 
-    }
-
-    renderHeader() {
-        <View style={styles.header}>
-          <Text>CKO Sheepsheadbay Schedule</Text>
-        </View>
     }
 };
 

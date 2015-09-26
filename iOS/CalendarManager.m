@@ -50,6 +50,10 @@ RCT_EXPORT_METHOD(addEvent:(NSString *)name date:(NSDate *)date location:(NSStri
   event.location = location;
   event.notes = instructor;
 
+  NSTimeInterval offset = -1*60*30;
+  EKAlarm *alarm = [EKAlarm alarmWithRelativeOffset:offset];
+  [event addAlarm:alarm];
+  
   NSError* error;
   
   if([self.eventStore saveEvent:event span:EKSpanFutureEvents commit:YES error:&error]) {
