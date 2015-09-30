@@ -230,7 +230,6 @@ class ClubReadyApp extends React.Component {
     }
 
     createCalendarEvent(rowData, sectionID) {
-        debugger;
         var dateString = moment(sectionID).format('L') + ' ' + rowData.time,
             classDate = moment(dateString, 'MM/DD/YYYY h:mm A');
 
