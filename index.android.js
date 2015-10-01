@@ -3,8 +3,8 @@
 var React = require('react-native'),
     moment = require('moment'),
     qs = require('query-string'),
-    cheerio = require('cheerio');
-    // CalendarManager = require('NativeModules').CalendarManager;
+    cheerio = require('cheerio'),
+    CalendarManager = require('NativeModules').CalendarManager;
 
 var {
     AppRegistry,
@@ -13,10 +13,10 @@ var {
     View,
     ListView,
     TouchableOpacity,
+    // NativeModules
     // AlertIOS,
     // ActivityIndicatorIOS
 } = React;
-
 
 var API_URL = 'https://www.clubready.com/common/widgets/ClassPublish/ajax_updateclassweek.asp';
 
@@ -231,7 +231,7 @@ class ClubReadyApp extends React.Component {
             classDate = moment(dateString, 'MM/DD/YYYY h:mm A');
 
 
-        // CalendarManager.addEvent('CKO Class', classDate.toISOString(), '2615 E 17th St, Brooklyn, NY 11235', rowData.instructor);
+        CalendarManager.addEvent('CKO Class', classDate.toISOString(), '2615 E 17th St, Brooklyn, NY 11235', rowData.instructor);
     }
 
     renderSectionHeader(sectionData, sectionID) {
@@ -265,6 +265,9 @@ Object.assign(ClubReadyApp.prototype, {
                     onPress : () => this.createCalendarEvent(rowData, sectionID)
                 }
             ]
+
+            console.log("creating calendar event");
+            this.createCalendarEvent(rowData, sectionID);
             // AlertIOS.alert('Add Event To Calendar', null, buttons);
         }
 

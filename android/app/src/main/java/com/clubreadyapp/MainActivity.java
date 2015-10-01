@@ -20,12 +20,13 @@ public class MainActivity extends Activity implements DefaultHardwareBackBtnHand
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mReactRootView = new ReactRootView(this);
-
+        System.out.println("HI");
         mReactInstanceManager = ReactInstanceManager.builder()
                 .setApplication(getApplication())
                 .setBundleAssetName("index.android.bundle")
                 .setJSMainModuleName("index.android")
-                .addPackage(new MainReactPackage())
+//                .addPackage(new MainReactPackage())
+                .addPackage(new ClubReadyPackage())
                 .setUseDeveloperSupport(BuildConfig.DEBUG)
                 .setInitialLifecycleState(LifecycleState.RESUMED)
                 .build();
