@@ -21,7 +21,6 @@ public class ClubReadyPackage extends MainReactPackage {
     public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
         ArrayList<NativeModule> modules = new ArrayList<NativeModule>(super.createNativeModules(reactContext));
         modules.add(new CalendarManager(reactContext));
-        System.out.println("Native Modules " + modules.size());
         return modules;
     }
 
