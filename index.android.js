@@ -4,7 +4,9 @@ var React = require('react-native'),
     moment = require('moment'),
     qs = require('query-string'),
     cheerio = require('cheerio'),
-    CalendarManager = require('NativeModules').CalendarManager;
+    nativeModules = require('NativeModules'),
+    CalendarManager = nativeModules.CalendarManager,
+    AlertManager = nativeModules.AlertManager;
 
 var {
     AppRegistry,
@@ -13,9 +15,7 @@ var {
     View,
     ListView,
     TouchableOpacity,
-    // NativeModules
-    // AlertIOS,
-    // ActivityIndicatorIOS
+    ProgressBarAndroid,
 } = React;
 
 var API_URL = 'https://www.clubready.com/common/widgets/ClassPublish/ajax_updateclassweek.asp';
@@ -199,9 +199,8 @@ class ClubReadyApp extends React.Component {
                 <View style={styles.header}>
                     <Text style={styles.headerText}>CKO Sheepshead Bay Schedule</Text>
                 </View>
-                
                 <View style={styles.acitvityContainer}>
-                        
+                    <ProgressBarAndroid styleAttr="Small" />
                 </View>
                 
             </View>
@@ -230,7 +229,6 @@ class ClubReadyApp extends React.Component {
         var dateString = moment(sectionID).format('L') + ' ' + rowData.time,
             classDate = moment(dateString, 'MM/DD/YYYY h:mm A');
 
-
         CalendarManager.addEvent('CKO Class', classDate.toISOString(), '2615 E 17th St, Brooklyn, NY 11235', rowData.instructor);
     }
 
@@ -256,19 +254,13 @@ Object.assign(ClubReadyApp.prototype, {
             );
         },
         onPressRow : function (rowData, sectionID) {
-            var buttons = [
-                {
-                    text : 'Cancel'
-                },
-                {
-                    text    : 'OK',
-                    onPress : () => this.createCalendarEvent(rowData, sectionID)
-                }
-            ]
+            AlertManager.showAlert(null, 'Add Event to Calendar', ['yes','no'], this.onDialogButtonPress.bind(this, rowData, sectionID));
+        },
 
-            console.log("creating calendar event");
-            this.createCalendarEvent(rowData, sectionID);
-            // AlertIOS.alert('Add Event To Calendar', null, buttons);
+        onDialogButtonPress : function (rowData, sectionID, buttonID) {
+            if(buttonID === 'POSITIVE') {
+                this.createCalendarEvent(rowData, sectionID);
+            }
         }
 
     }
