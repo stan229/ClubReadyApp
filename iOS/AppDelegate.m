@@ -38,7 +38,7 @@
    * Load from pre-bundled file on disk. To re-generate the static bundle
    * from the root of your project directory, run
    *
-   * $ react-native bundle --minify
+   * $  
    *
    * see http://facebook.github.io/react-native/docs/runningondevice.html
    */
