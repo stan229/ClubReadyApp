@@ -171,11 +171,19 @@ class ClubReadyApp extends React.Component {
             }
             if(tableRow.attribs.class) {
                 rowCells = $(tableRow).children('td');
-                scheduleDay.schedule.push({
-                    time       : rowCells[0].children[0].data.toUpperCase(),
-                    instructor : $(rowCells[2]).text(),
-                    duration   : $(rowCells[4]).text().split('\n')[0]
-                })
+                
+                if(!rowCells[0].children[0].name) {
+                    scheduleDay.schedule.push({
+                        time       : rowCells[0].children[0].data.toUpperCase(),
+                        instructor : $(rowCells[2]).text(),
+                        duration   : $(rowCells[4]).text().split('\n')[0]
+                    });
+                } else {
+                    scheduleDay.schedule.push({
+                        noClasses : true
+                    });
+                }
+                
             }
         }
 
@@ -244,17 +252,25 @@ class ClubReadyApp extends React.Component {
 Object.assign(ClubReadyApp.prototype, {
     bindableMethods : {
         renderRow : function (rowData, sectionID, rowID) {
-            return (
-                <TouchableOpacity onPress={() => this.onPressRow(rowData, sectionID)}>
+            var rowView = (
                     <View style={styles.rowStyle}>
                         <Text style={styles.rowText}>{rowData.time}</Text>        
                         <Text style={styles.subText}>{rowData.instructor}</Text>        
                     </View>
+                );
+
+            if(rowData.noClasses) {
+                rowView = <View style={styles.rowStyle}><Text style={styles.rowText}>No Classes</Text></View>
+            }
+
+            return (
+                <TouchableOpacity onPress={() => this.onPressRow(rowData, sectionID)}>
+                    {rowView}
                 </TouchableOpacity>
             );
         },
         onPressRow : function (rowData, sectionID) {
-            AlertManager.showAlert(null, 'Add Event to Calendar', ['yes','no'], this.onDialogButtonPress.bind(this, rowData, sectionID));
+            !rowData.noClasses && AlertManager.showAlert(null, 'Add Event to Calendar', ['yes','no'], this.onDialogButtonPress.bind(this, rowData, sectionID));
         },
 
         onDialogButtonPress : function (rowData, sectionID, buttonID) {
